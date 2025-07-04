@@ -1,5 +1,24 @@
 const express = require('express');
+const  {Pool} = require ('pg');
+
 const app = express();
+
+const pool = new Pool ({
+  user:'postgres',
+  host:'localhost',
+  database: 'mydb',
+  password: '1111',
+  port: 5432,
+});
+
+pool.query('SELECT NOW()' , (err, result) => {
+  if (err){
+    console.log('Ошибка выполнения запроса: ', err)
+  } else{
+    console.log('Результат запроса: ', result.rows[0])
+  }
+});
+
 app.use(express.json());
 
 let todos = [
