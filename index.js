@@ -1,7 +1,9 @@
 const express = require('express');
 const  {Pool} = require ('pg');
-
 const app = express();
+const cors = require('cors');
+app.use(cors());
+
 
 const pool = new Pool ({
   user:'postgres',
@@ -11,13 +13,14 @@ const pool = new Pool ({
   port: 5432,
 });
 
-pool.query('SELECT NOW()' , (err, result) => {
+pool.query('SELECT NOW()', (err, result) => {
   if (err){
     console.log('Ошибка выполнения запроса: ', err)
   } else{
     console.log('Результат запроса: ', result.rows[0])
   }
 });
+
 
 app.use(express.json());
 
@@ -31,6 +34,70 @@ app.post('/todos', (req, res) => {
   const newTodo = { id: todos.length + 1, task: req.body.task, completed: false };
   todos.push(newTodo);
   res.status(201).json(newTodo);
+});
+
+app.post('/register', async (req, res) => {
+  const { fullName, email, password } = req.body;
+  
+  try {
+    // Проверка существования пользователя
+    const userCheck = await pool.query(
+      'SELECT * FROM users WHERE email = $1', 
+      [email]
+    );
+    
+    if (userCheck.rows.length > 0) {
+      return res.status(400).json({ message: 'Пользователь с таким email уже существует' });
+    }
+
+    // Вставка нового пользователя
+    const result = await pool.query(
+      'INSERT INTO users (full_name, email, password) VALUES ($1, $2, $3) RETURNING *',
+      [fullName, email, password]
+    );
+    
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error('Ошибка регистрации:', error);
+    res.status(500).json({ message: 'Ошибка сервера при регистрации' });
+  }
+});
+
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    // Поиск пользователя по email
+    const userResult = await pool.query(
+      'SELECT * FROM users WHERE email = $1',
+      [email]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(401).json({ message: 'Пользователь с таким email не найден' });
+    }
+
+    const user = userResult.rows[0];
+
+    // Проверка пароля 
+    if (user.password !== password) {
+      return res.status(401).json({ message: 'Неверный пароль' });
+    }
+
+    // Успешная аутентификация
+    res.status(200).json({ 
+      message: 'Вход выполнен успешно',
+      user: {
+        id: user.id,
+        fullName: user.full_name,
+        email: user.email
+      }
+    });
+
+  } catch (error) {
+    console.error('Ошибка входа:', error);
+    res.status(500).json({ message: 'Ошибка сервера при входе' });
+  }
 });
 
 app.listen(3001, () => console.log('Server is running on port 3001'));
