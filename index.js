@@ -38,7 +38,8 @@ app.post('/todos', (req, res) => {
 
 app.post('/register', async (req, res) => {
   const { fullName, email, password } = req.body;
-  
+  const can_access_admin = false; 
+  const is_active = true ;
   try {
     // Проверка существования пользователя
     const userCheck = await pool.query(
@@ -52,9 +53,9 @@ app.post('/register', async (req, res) => {
 
     // Вставка нового пользователя
     const result = await pool.query(
-      'INSERT INTO users (full_name, email, password) VALUES ($1, $2, $3) RETURNING *',
-      [fullName, email, password]
-    );
+            'INSERT INTO users (full_name, email, password, can_access_admin, is_active) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+            [fullName, email, password, can_access_admin, is_active]
+        );
     
     res.status(201).json(result.rows[0]);
   } catch (error) {
@@ -90,7 +91,8 @@ app.post('/login', async (req, res) => {
       user: {
         id: user.id,
         fullName: user.full_name,
-        email: user.email
+        email: user.email,
+        isAdmin: user.can_access_admin
       }
     });
 
