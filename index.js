@@ -64,6 +64,60 @@ app.post('/register', async (req, res) => {
   }
 });
 
+// Добавляем endpoint для сохранения заявок
+app.post('/api/requests', async (req, res) => {
+  const {
+    name,
+    email,
+    phone,
+    purchaseCountry,
+    purchaseCity,
+    deliveryCity,
+    area,
+    weight,
+    user_id
+  } = req.body;
+
+  try {
+    // Устанавливаем статус "новая" по умолчанию (предположим, что status_id = 1 для новой заявки)
+    const defaultStatusId = 1;
+    
+    // Вставка новой заявки с правильными названиями полей
+    const result = await pool.query(
+      `INSERT INTO requests (
+        creator_id, 
+        status_id, 
+        name, 
+        email, 
+        phone_number, 
+        country_Buying, 
+        city_Buying, 
+        city_delivery, 
+        area, 
+        weight
+      ) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *`,
+      [
+        user_id, 
+        defaultStatusId, 
+        name, 
+        email, 
+        phone, 
+        purchaseCountry, 
+        purchaseCity, 
+        deliveryCity, 
+        area, 
+        weight
+      ]
+    );
+    
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error('Ошибка сохранения заявки:', error);
+    res.status(500).json({ message: 'Ошибка сервера при сохранении заявки' });
+  }
+});
+
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
