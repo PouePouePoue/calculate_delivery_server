@@ -52,8 +52,6 @@ async function estimateCost(purchaseCountry, purchaseCity, deliveryCity, area, w
     const areaValue = parseFloat(area) || 0;
     const weightValue = parseFloat(weight) || 0;
     
-    console.log('Параметры для расчета стоимости:', { distanceKm, areaValue, weightValue });
-    
     const estimatedCost = calculateCost(distanceKm, areaValue, weightValue);
     
     if (!distanceResult.success) {

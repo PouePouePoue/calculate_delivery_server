@@ -14,7 +14,6 @@ const createRequest = async (requestData) => {
     user_id
   } = requestData;
 
-  console.log('Данные заявки:', { name, email, phone, purchaseCountry, purchaseCity, deliveryCity, area, weight, user_id });
 
   // Рассчитываем расстояние перед сохранением заявки
   const distanceResult = await calculateDistance(purchaseCity, purchaseCountry, deliveryCity);
@@ -24,7 +23,6 @@ const createRequest = async (requestData) => {
   const areaValue = parseFloat(area) || 0;
   const weightValue = parseFloat(weight) || 0;
   
-  console.log('Параметры для расчета:', { distanceKm, areaValue, weightValue });
   
   const { calculateCost } = require('../utils/costCalculator');
   const cost = calculateCost(distanceKm, areaValue, weightValue);
