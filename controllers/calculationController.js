@@ -38,7 +38,7 @@ const calculateDistance = async (req, res) => {
 const estimateCost = async (req, res) => {
   const { purchaseCountry, purchaseCity, deliveryCity, area, weight } = req.body;
   
-  console.log('Расчет стоимости с параметрами:', { purchaseCountry, purchaseCity, deliveryCity, area, weight });
+  
   
   try {
     const result = await calculationService.estimateCost(purchaseCountry, purchaseCity, deliveryCity, area, weight);

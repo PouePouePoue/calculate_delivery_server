@@ -9,13 +9,4 @@ const pool = new Pool({
   port: process.env.DB_PORT,
 });
 
-// Проверка подключения к базе данных
-pool.query('SELECT NOW()', (err, result) => {
-  if (err) {
-    console.log('Ошибка подключения к базе данных: ', err);
-  } else {
-    console.log('База данных подключена: ', result.rows[0]);
-  }
-});
-
 module.exports = pool;
